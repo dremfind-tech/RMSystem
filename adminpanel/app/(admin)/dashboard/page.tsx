@@ -131,9 +131,9 @@ export default function DashboardPage() {
                         <CardDescription>Revenue over time</CardDescription>
                     </CardHeader>
                     <CardContent className="pl-2">
-                        {loading ? <Skeleton className="h-[350px] w-full" /> : (
+                        {loading ? <Skeleton className="h-[350px] w-full" /> : salesData.length > 0 ? (
                             <div className="h-[350px] w-full">
-                                <ResponsiveContainer width="100%" height="100%">
+                                <ResponsiveContainer width="100%" height="100%" minHeight={350}>
                                     <BarChart data={salesData}>
                                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
                                         <XAxis
@@ -163,6 +163,10 @@ export default function DashboardPage() {
                                     </BarChart>
                                 </ResponsiveContainer>
                             </div>
+                        ) : (
+                            <div className="h-[350px] w-full flex items-center justify-center text-muted-foreground">
+                                <p>No data available for the selected period</p>
+                            </div>
                         )}
                     </CardContent>
                 </Card>
@@ -173,9 +177,9 @@ export default function DashboardPage() {
                         <CardDescription>Number of orders</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        {loading ? <Skeleton className="h-[350px] w-full" /> : (
+                        {loading ? <Skeleton className="h-[350px] w-full" /> : salesData.length > 0 ? (
                             <div className="h-[350px] w-full">
-                                <ResponsiveContainer width="100%" height="100%">
+                                <ResponsiveContainer width="100%" height="100%" minHeight={350}>
                                     <LineChart data={salesData}>
                                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
                                         <XAxis dataKey="date" hide />
@@ -191,6 +195,10 @@ export default function DashboardPage() {
                                         />
                                     </LineChart>
                                 </ResponsiveContainer>
+                            </div>
+                        ) : (
+                            <div className="h-[350px] w-full flex items-center justify-center text-muted-foreground">
+                                <p>No data available for the selected period</p>
                             </div>
                         )}
                     </CardContent>
