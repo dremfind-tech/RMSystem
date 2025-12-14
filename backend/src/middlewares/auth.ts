@@ -20,7 +20,13 @@ export const authenticateUser = async (req: Request, res: Response, next: NextFu
     }
 
     const token = authHeader.split(' ')[1];
-    const secret = process.env.JWT_SECRET || process.env.SUPABASE_JWT_SECRET || '';
+    // Prioritize SUPABASE_JWT_SECRET as it is standard in Supabase Vercel integration
+    const secret = process.env.SUPABASE_JWT_SECRET || process.env.JWT_SECRET;
+
+    if (!secret) {
+        console.error('FATAL: No JWT Secret (SUPABASE_JWT_SECRET or JWT_SECRET) provided in environment variables.');
+        return res.status(500).json({ error: 'Server misconfiguration: missing auth secret' });
+    }
 
     try {
         // 1. Verify JWT
