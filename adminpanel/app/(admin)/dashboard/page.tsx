@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { createClient } from "@/lib/supabaseClient"
+import { apiClient } from "@/lib/apiClient"
 import { format, subDays, startOfDay, endOfDay, eachDayOfInterval } from "date-fns"
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -51,61 +52,36 @@ export default function DashboardPage() {
             end = now.toISOString();
         }
 
-        // Fetch Orders
-        // Assuming table 'orders' with columns: total_amount, created_at, status
-        const { data: orders, error } = await supabase
-            .from('orders')
-            .select('total_amount, created_at, status')
-            .gte('created_at', start!)
-            .lte('created_at', end!);
+        try {
+            // Using dedicated analytics endpoint provided by backend team
+            const data = await apiClient(`/api/analytics/dashboard?from=${start}&to=${end}`)
 
-        if (error) {
-            console.error("Error fetching orders", error)
-            setLoading(false)
-            return
-        }
+            if (data && data.stats) {
+                setStats({
+                    revenue: Number(data.stats.total_revenue) || 0,
+                    ordersCount: Number(data.stats.total_orders) || 0,
+                    avgOrderValue: Number(data.stats.average_order_value) || 0
+                })
 
-        if (!orders) {
+                // Map backend sales_data to chart format if needed
+                if (data.sales_data) {
+                    // Assuming backend returns { date: string, revenue: number, orders: number }[]
+                    // or we map it. If backend format matches, great. 
+                    // Let's assume backend returns "sales_data" array matching our needs or we map it.
+                    const mappedData = data.sales_data.map((item: any) => ({
+                        date: format(new Date(item.date), "MMM dd"),
+                        revenue: Number(item.revenue),
+                        orders: Number(item.orders)
+                    }));
+                    setSalesData(mappedData);
+                }
+            }
+        } catch (error) {
+            console.error("Error fetching analytics", error)
             setStats({ revenue: 0, ordersCount: 0, avgOrderValue: 0 })
             setSalesData([])
-            setLoading(false)
-            return
         }
 
-        // Aggregations
-        const totalRev = orders.reduce((acc, order) => acc + (Number(order.total_amount) || 0), 0)
-        const count = orders.length
-
-        setStats({
-            revenue: totalRev,
-            ordersCount: count,
-            avgOrderValue: count > 0 ? totalRev / count : 0
-        })
-
-        // Prepare Chart Data
-        // Group by day
-        const groupedData: Record<string, { date: string, revenue: number, orders: number }> = {};
-
-        // Initialize days
-        const days = eachDayOfInterval({
-            start: new Date(start!),
-            end: new Date(end!)
-        });
-
-        days.forEach(day => {
-            const dateStr = format(day, "MMM dd");
-            groupedData[dateStr] = { date: dateStr, revenue: 0, orders: 0 };
-        });
-
-        orders.forEach(order => {
-            const dateStr = format(new Date(order.created_at), "MMM dd");
-            if (groupedData[dateStr]) {
-                groupedData[dateStr].revenue += Number(order.total_amount) || 0;
-                groupedData[dateStr].orders += 1;
-            }
-        });
-
-        setSalesData(Object.values(groupedData));
         setLoading(false)
     }
 

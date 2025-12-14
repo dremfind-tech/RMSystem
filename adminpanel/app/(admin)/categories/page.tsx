@@ -75,17 +75,11 @@ export default function CategoriesPage() {
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
         try {
             if (editingCategory) {
-                // Feature flagged as missing in backend
-                toast.error("Update Category API not available in backend contract.")
-
-                // Code preserved for future integration:
-                /* 
                 await apiClient(`/api/menu/category/${editingCategory.id}`, {
                     method: 'PUT',
                     body: JSON.stringify(values)
                 })
                 toast.success("Category updated")
-                */
             } else {
                 await apiClient('/api/menu/category', {
                     method: 'POST',
@@ -102,13 +96,6 @@ export default function CategoriesPage() {
 
     const handleDelete = async () => {
         if (!deleteId) return
-
-        // Feature flagged as missing in backend
-        toast.error("Delete Category API not available in backend contract.")
-        setDeleteId(null)
-
-        // Code preserved for future integration:
-        /*
         try {
             await apiClient(`/api/menu/category/${deleteId}`, {
                 method: 'DELETE'
@@ -120,7 +107,6 @@ export default function CategoriesPage() {
         } finally {
             setDeleteId(null)
         }
-        */
     }
 
     const startEdit = (cat: Category) => {
