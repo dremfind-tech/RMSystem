@@ -50,7 +50,21 @@ export const createCategory = async (req: Request, res: Response) => {
 
 // 3. POST /api/menu/item (ADMIN)
 export const createMenuItem = async (req: Request, res: Response) => {
-    const { restaurant_id, category_id, name, description, price, image_url } = req.body;
+    let { restaurant_id, category_id, name, description, price, image_url } = req.body;
+
+    // If restaurant_id is not provided, fetch it from the logged-in user
+    if (!restaurant_id && req.user && req.user.sub) {
+        const { data: userData, error: userError } = await supabaseAdmin
+            .from('users')
+            .select('restaurant_id')
+            .eq('id', req.user.sub)
+            .single();
+
+        if (userError || !userData?.restaurant_id) {
+            return res.status(400).json({ error: 'Could not determine restaurant_id for user' });
+        }
+        restaurant_id = userData.restaurant_id;
+    }
 
     const { data, error } = await supabaseAdmin
         .from('menu_items')
