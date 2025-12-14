@@ -3,20 +3,23 @@
 Base URL: `/api`
 
 ## Authentication
-All protected endpoints require a valid Supabase JWT in the Authorization header.
+All protected endpoints require a valid Supabase JWT in the `Authorization` header.
 `Authorization: Bearer <your-jwt-token>`
 
-## 1. Menu Management
+---
+
+## 1. Menu & Categories Management
+These endpoints manage the restaurant menu, including categories and individual items.
 
 ### Get Menu
-Retrieves the full menu (categories and items).
-*   **URL**: `/menu`
+Retrieves the full menu (categories with nested items).
+*   **URL**: `/menu` or `/categories`
 *   **Method**: `GET`
 *   **Auth**: Required
-*   **Response**: Array of categories with nested menu items.
+*   **Response**: JSON Array of categories with their menu items.
 
 ### Create Category (Admin)
-*   **URL**: `/menu/category`
+*   **URL**: `/menu/category` or `/categories`
 *   **Method**: `POST`
 *   **Role**: `ADMIN`
 *   **Body**:
@@ -24,7 +27,8 @@ Retrieves the full menu (categories and items).
     {
       "name": "Starters",
       "description": "Appetizers",
-      "restaurant_id": "uuid"
+      "restaurant_id": "uuid",
+      "sort_order": 1
     }
     ```
 
@@ -38,9 +42,10 @@ Retrieves the full menu (categories and items).
       "restaurant_id": "uuid",
       "category_id": "uuid",
       "name": "Spring Rolls",
-      "description": "Crispy vagetable rolls",
+      "description": "Crispy vegetable rolls",
       "price": 5.99,
-      "image_url": "http://..."
+      "image_url": "http://...",
+      "is_available": true
     }
     ```
 
@@ -48,7 +53,7 @@ Retrieves the full menu (categories and items).
 *   **URL**: `/menu/item/:id`
 *   **Method**: `PUT`
 *   **Role**: `ADMIN`
-*   **Body**: JSON object with fields to update (e.g., price, name).
+*   **Body**: Partial JSON object with fields to update.
 
 ### Delete Menu Item (Admin)
 *   **URL**: `/menu/item/:id`
@@ -59,11 +64,11 @@ Retrieves the full menu (categories and items).
 
 ## 2. Order Management
 
-### Create Order (Waiter)
-Creates a new order. Prices are snapshot at the time of creation from the database.
+### Create Order (Waiter/Admin)
+Creates a new order.
 *   **URL**: `/orders`
 *   **Method**: `POST`
-*   **Role**: `WAITER`
+*   **Role**: `WAITER`, `ADMIN`
 *   **Body**:
     ```json
     {
@@ -77,10 +82,10 @@ Creates a new order. Prices are snapshot at the time of creation from the databa
     ```
 
 ### Get Orders
-Fetches orders. Results are filtered by role (e.g., Waiters see their own, Chefs see all).
+Fetches list of orders.
 *   **URL**: `/orders`
 *   **Method**: `GET`
-*   **Auth**: Required
+*   **Auth**: Required (Response filtered based on User Role logic in controller)
 
 ### Get Order Details
 *   **URL**: `/orders/:id`
@@ -88,7 +93,7 @@ Fetches orders. Results are filtered by role (e.g., Waiters see their own, Chefs
 *   **Auth**: Required
 
 ### Update Order Status
-Updates the status of an order. Enforces valid state transitions.
+Updates the status of an order.
 *   **URL**: `/orders/:id/status`
 *   **Method**: `PUT`
 *   **Role**: `CHEF`, `WAITER`, `ADMIN`
@@ -98,20 +103,15 @@ Updates the status of an order. Enforces valid state transitions.
       "status": "COOKING" 
     }
     ```
-*   **Valid Transitions**:
-    *   `CREATED` -> `ACCEPTED`
-    *   `ACCEPTED` -> `COOKING`
-    *   `COOKING` -> `READY`
-    *   `READY` -> `SERVED` (Triggers Invoice Generation)
-    *   Any -> `CANCELLED`
+*   **Valid Statuses**: `CREATED`, `ACCEPTED`, `COOKING`, `READY`, `SERVED`, `CANCELLED`
 
 ---
 
 ## 3. Invoices
 
-### Get Invoice
+### Get Invoice by Order ID
 Retrieves invoice details for a specific order.
 *   **URL**: `/invoices/:orderId`
 *   **Method**: `GET`
 *   **Role**: `CASHIER`, `ADMIN`
-*   **Response**: Invoice details including subtotal, tax, and total.
+
