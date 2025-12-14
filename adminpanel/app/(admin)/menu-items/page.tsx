@@ -42,7 +42,7 @@ type MenuItem = {
     name: string
     description?: string
     price: number
-    category_id: number
+    category_id: string
     is_available: boolean
     image_url?: string
     categories?: { name: string }
@@ -123,7 +123,7 @@ export default function MenuItemsPage() {
             // Handle placeholder upload if needed, here just taking string
             const payload = {
                 ...values,
-                category_id: parseInt(values.category_id),
+                category_id: values.category_id,
                 restaurant_id: restaurantId
             }
 
@@ -173,7 +173,7 @@ export default function MenuItemsPage() {
             name: item.name,
             description: item.description || "",
             price: item.price,
-            category_id: item.category_id.toString(),
+            category_id: item.category_id,
             is_available: item.is_available,
             image_url: item.image_url || ""
         })
