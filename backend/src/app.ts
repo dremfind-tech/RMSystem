@@ -6,7 +6,7 @@ import morgan from 'morgan';
 import menuRoutes from './routes/menu.routes';
 import orderRoutes from './routes/orders.routes';
 import invoiceRoutes from './routes/invoices.routes';
-import categoriesRoutes from './routes/categories.routes';
+import analyticsRoutes from './routes/analytics.routes';
 
 const app: Application = express();
 
@@ -20,7 +20,7 @@ app.use(express.json());
 app.use('/api/menu', menuRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/invoices', invoiceRoutes);
-app.use('/api/categories', categoriesRoutes);
+app.use('/api/analytics', analyticsRoutes);
 
 // Health Check
 app.get('/', (req: Request, res: Response) => {

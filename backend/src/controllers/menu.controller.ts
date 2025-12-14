@@ -104,3 +104,34 @@ export const deleteMenuItem = async (req: Request, res: Response) => {
     if (error) return res.status(400).json({ error: error.message });
     res.json({ message: 'Item deleted' });
 };
+
+// 6. PUT /api/menu/category/:id (ADMIN)
+export const updateCategory = async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const updates = req.body; // { name, sort_order }
+
+    const { data, error } = await supabaseAdmin
+        .from('categories')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+
+    if (error) return res.status(400).json({ error: error.message });
+    res.json(data);
+};
+
+// 7. DELETE /api/menu/category/:id (ADMIN)
+export const deleteCategory = async (req: Request, res: Response) => {
+    const { id } = req.params;
+
+    // Check for dependent items? Optional, but DB might have constraints or cascading.
+    // Assuming DB handles cascade or error.
+    const { error } = await supabaseAdmin
+        .from('categories')
+        .delete()
+        .eq('id', id);
+
+    if (error) return res.status(400).json({ error: error.message });
+    res.json({ message: 'Category deleted' });
+};
