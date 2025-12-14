@@ -21,7 +21,23 @@ export const getMenu = async (req: Request, res: Response) => {
 
 // 2. POST /api/menu/category (ADMIN)
 export const createCategory = async (req: Request, res: Response) => {
-    const { name, description, restaurant_id } = req.body;
+    let { name, description, restaurant_id } = req.body;
+
+    // If restaurant_id is not provided, fetch it from the logged-in user
+    if (!restaurant_id && req.user && req.user.sub) {
+        const { data: userData, error: userError } = await supabaseAdmin
+            .from('users') // Assuming 'users' table links auth.users to restaurant
+            .select('restaurant_id')
+            .eq('id', req.user.sub)
+            .single();
+
+        if (userError || !userData?.restaurant_id) {
+            console.error('Failed to resolve restaurant_id for user:', req.user.sub, userError);
+            return res.status(400).json({ error: 'Could not determine restaurant_id for user' });
+        }
+        restaurant_id = userData.restaurant_id;
+    }
+
     const { data, error } = await supabaseAdmin
         .from('categories')
         .insert([{ name, description, restaurant_id }])
