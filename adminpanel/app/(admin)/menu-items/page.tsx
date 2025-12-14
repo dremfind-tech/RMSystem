@@ -110,13 +110,13 @@ export default function MenuItemsPage() {
             const payload = { ...values, category_id: parseInt(values.category_id) }
 
             if (editingItem) {
-                await apiClient(`/api/menu-items/${editingItem.id}`, {
+                await apiClient(`/api/menu/item/${editingItem.id}`, {
                     method: 'PUT',
                     body: JSON.stringify(payload)
                 })
                 toast.success("Item updated")
             } else {
-                await apiClient('/api/menu-items', {
+                await apiClient('/api/menu/item', {
                     method: 'POST',
                     body: JSON.stringify(payload)
                 })
@@ -132,7 +132,7 @@ export default function MenuItemsPage() {
     const handleDelete = async () => {
         if (!deleteId) return
         try {
-            await apiClient(`/api/menu-items/${deleteId}`, {
+            await apiClient(`/api/menu/item/${deleteId}`, {
                 method: 'DELETE'
             })
             toast.success("Item deleted")
