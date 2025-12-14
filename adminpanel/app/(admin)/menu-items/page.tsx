@@ -87,7 +87,7 @@ export default function MenuItemsPage() {
         if (data) setCategories(data)
     }
 
-    const form = useForm<z.infer<typeof formSchema>>({
+    const form = useForm({
         resolver: zodResolver(formSchema),
         defaultValues: {
             name: "",
@@ -208,7 +208,7 @@ export default function MenuItemsPage() {
                                             <FormItem>
                                                 <FormLabel>Price</FormLabel>
                                                 <FormControl>
-                                                    <Input type="number" step="0.01" {...field} />
+                                                    <Input type="number" step="0.01" {...field} value={field.value as number} />
                                                 </FormControl>
                                                 <FormMessage />
                                             </FormItem>

@@ -64,7 +64,7 @@ export default function CategoriesPage() {
         setLoading(false)
     }
 
-    const form = useForm<z.infer<typeof formSchema>>({
+    const form = useForm({
         resolver: zodResolver(formSchema),
         defaultValues: {
             name: "",
@@ -164,7 +164,7 @@ export default function CategoriesPage() {
                                         <FormItem>
                                             <FormLabel>Sort Order</FormLabel>
                                             <FormControl>
-                                                <Input type="number" {...field} />
+                                                <Input type="number" {...field} value={field.value as number} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
