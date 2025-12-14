@@ -68,6 +68,18 @@ export const createMenuItem = async (req: Request, res: Response) => {
         console.log('CreateItem: Resolved restaurant_id:', restaurant_id);
     }
 
+    console.log('CreateItem: Input Data:', { restaurant_id, category_id, name });
+
+    const isUUID = (str: any) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
+
+    if (!restaurant_id || !isUUID(restaurant_id)) {
+        return res.status(400).json({ error: `Invalid or missing restaurant_id: ${restaurant_id}` });
+    }
+    if (!category_id || !isUUID(category_id)) {
+        return res.status(400).json({ error: `Invalid or missing category_id: ${category_id}` });
+    }
+
+
     const { data, error } = await supabaseAdmin
         .from('menu_items')
         .insert([{ restaurant_id, category_id, name, description, price, image_url }])
