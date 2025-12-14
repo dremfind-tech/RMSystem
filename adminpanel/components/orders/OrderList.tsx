@@ -41,8 +41,8 @@ export function OrderList({ type }: OrderListProps) {
             .order('created_at', { ascending: false })
 
         if (type === 'recent') {
-            // Recent = Not completed or cancelled
-            query = query.not('status', 'in', '("completed","cancelled")')
+            // Recent = Not served or cancelled
+            query = query.not('status', 'in', '("SERVED","CANCELLED")')
         }
         // For history, we show everything.
 
@@ -57,10 +57,11 @@ export function OrderList({ type }: OrderListProps) {
     const getStatusColor = (status: string) => {
         const s = status?.toLowerCase() || '';
         switch (s) {
-            case 'pending': return 'bg-yellow-100 text-yellow-800 border-yellow-200'
-            case 'preparing': return 'bg-blue-100 text-blue-800 border-blue-200'
+            case 'created': return 'bg-yellow-100 text-yellow-800 border-yellow-200'
+            case 'accepted': return 'bg-blue-100 text-blue-800 border-blue-200'
+            case 'cooking': return 'bg-orange-100 text-orange-800 border-orange-200'
             case 'ready': return 'bg-green-100 text-green-800 border-green-200'
-            case 'completed': return 'bg-neutral-100 text-neutral-800 border-neutral-200'
+            case 'served': return 'bg-neutral-100 text-neutral-800 border-neutral-200'
             case 'cancelled': return 'bg-red-100 text-red-800 border-red-200'
             default: return 'bg-neutral-100 text-neutral-800 border-neutral-200'
         }
@@ -150,7 +151,7 @@ export function OrderList({ type }: OrderListProps) {
                                 </div>
                                 {/* We can't know the exact time of status changes without a history log table. 
                         Just showing Current Status. */}
-                                {selectedOrder?.status !== 'pending' && (
+                                {selectedOrder?.status !== 'CREATED' && (
                                     <div className="relative mt-2">
                                         <div className={`absolute -left-[21px] top-1 h-3 w-3 rounded-full ${['cancelled'].includes(selectedOrder?.status) ? 'bg-destructive' : 'bg-primary'}`} />
                                         <p className="text-sm font-medium">Current Status: {selectedOrder?.status.toUpperCase()}</p>
