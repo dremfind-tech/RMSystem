@@ -10,6 +10,8 @@ if (!supabaseUrl || !supabaseServiceKey) {
     throw new Error('Missing Supabase Environment Variables: Check SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY');
 }
 
+console.log(`Supabase Client Initialized. URL: ${supabaseUrl}`);
+
 export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
     auth: {
         autoRefreshToken: false,

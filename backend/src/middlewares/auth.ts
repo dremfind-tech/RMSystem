@@ -42,11 +42,13 @@ export const authenticateUser = async (req: Request, res: Response, next: NextFu
             .eq('user_id', decoded.sub)
             .single();
 
-        if (error || !data) {
-            // Fallback or explicit error? 
-            // If no role assigned, maybe just authenticated user? 
-            // Requirement implies specific roles.
-            console.error(`User ${decoded.sub} has no role assigned. DB Error: ${error?.message}`);
+        if (error) {
+            console.error(`DB Error checking role for ${decoded.sub}: ${error.message}`);
+            return res.status(500).json({ error: 'Internal Server Error verifying permissions' });
+        }
+
+        if (!data) {
+            console.error(`User ${decoded.sub} has no role data found.`);
             return res.status(403).json({ error: 'User has no assigned role' });
         }
 
