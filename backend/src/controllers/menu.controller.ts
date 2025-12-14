@@ -61,9 +61,11 @@ export const createMenuItem = async (req: Request, res: Response) => {
             .single();
 
         if (userError || !userData?.restaurant_id) {
+            console.error('CreateItem: Failed to resolve restaurant_id for user:', req.user.sub, userError);
             return res.status(400).json({ error: 'Could not determine restaurant_id for user' });
         }
         restaurant_id = userData.restaurant_id;
+        console.log('CreateItem: Resolved restaurant_id:', restaurant_id);
     }
 
     const { data, error } = await supabaseAdmin
@@ -72,7 +74,10 @@ export const createMenuItem = async (req: Request, res: Response) => {
         .select()
         .single();
 
-    if (error) return res.status(400).json({ error: error.message });
+    if (error) {
+        console.error('CreateItem: DB Insert Error:', error);
+        return res.status(400).json({ error: error.message });
+    }
     res.status(201).json(data);
 };
 
