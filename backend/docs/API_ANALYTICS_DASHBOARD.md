@@ -86,10 +86,48 @@ GET /api/analytics/dashboard?from=2024-12-01T00:00:00.000Z&to=2024-12-14T23:59:5
     "from": "2024-12-07T00:00:00.000Z",
     "to": "2024-12-14T23:59:59.999Z"
   },
-  "summary": {
-    "revenue": 15847.50,
-    "orders": 125
+  "stats": {
+    "total_revenue": 15847.50,
+    "total_orders": 125,
+    "average_order_value": 126.78
   },
+  "sales_data": [
+    {
+      "date": "2024-12-07",
+      "revenue": 2100.50,
+      "orders": 18
+    },
+    {
+      "date": "2024-12-08",
+      "revenue": 1850.25,
+      "orders": 15
+    },
+    {
+      "date": "2024-12-09",
+      "revenue": 2300.75,
+      "orders": 20
+    },
+    {
+      "date": "2024-12-10",
+      "revenue": 1950.00,
+      "orders": 16
+    },
+    {
+      "date": "2024-12-11",
+      "revenue": 2200.00,
+      "orders": 19
+    },
+    {
+      "date": "2024-12-12",
+      "revenue": 2450.00,
+      "orders": 21
+    },
+    {
+      "date": "2024-12-13",
+      "revenue": 1996.00,
+      "orders": 16
+    }
+  ],
   "topItems": [
     {
       "name": "Classic Burger",
@@ -130,13 +168,27 @@ Contains the actual date range used for the analytics query.
 | `from` | string | Start date of the analytics period (ISO 8601) |
 | `to`   | string | End date of the analytics period (ISO 8601)   |
 
-#### `summary` (object)
-High-level metrics for the specified period.
+#### `stats` (object)
+High-level summary metrics for the specified period.
 
-| Field     | Type   | Description                                           |
-|-----------|--------|-------------------------------------------------------|
-| `revenue` | number | Total revenue from all SERVED orders (in currency)    |
-| `orders`  | number | Total count of SERVED orders                          |
+| Field                 | Type   | Description                                           |
+|-----------------------|--------|-------------------------------------------------------|
+| `total_revenue`       | number | Total revenue from all SERVED orders (in currency)    |
+| `total_orders`        | number | Total count of SERVED orders                          |
+| `average_order_value` | number | Average revenue per order (total_revenue / total_orders) |
+
+#### `sales_data` (array)
+**NEW:** Daily aggregated sales data for time-series charts. Each entry represents one day in the date range.
+
+Each item contains:
+
+| Field     | Type   | Description                                    |
+|-----------|--------|------------------------------------------------|
+| `date`    | string | Date in YYYY-MM-DD format (e.g., "2024-12-07") |
+| `revenue` | number | Total revenue for that specific date           |
+| `orders`  | number | Number of orders for that specific date        |
+
+**Note:** Array is sorted chronologically (oldest to newest).
 
 #### `topItems` (array)
 Array of the top 5 best-selling menu items, sorted by quantity sold (descending).
@@ -193,6 +245,21 @@ Each item contains:
 - Counts only orders with status `SERVED`
 - Filters by `created_at` date range
 
+### Average Order Value
+- Calculated as: `total_revenue / total_orders`
+- Returns `0` if no orders exist
+
+### Sales Data (Time-Series)
+**NEW:** Daily aggregated data for charts
+1. Groups all SERVED orders by date (YYYY-MM-DD format)
+2. For each date:
+   - Sums `total_amount` to get daily revenue
+   - Counts number of orders
+3. Sorts chronologically (oldest to newest)
+4. Returns one entry per day that has orders
+
+**Note:** Days with zero orders are NOT included in the array.
+
 ### Top Items Calculation
 1. Fetches all `order_items` within the date range
 2. Groups items by `name`
@@ -225,7 +292,17 @@ const response = await fetch(
 );
 
 const analytics = await response.json();
-console.log('Total Revenue:', analytics.summary.revenue);
+
+// Access summary stats
+console.log('Total Revenue:', analytics.stats.total_revenue);
+console.log('Total Orders:', analytics.stats.total_orders);
+console.log('Average Order Value:', analytics.stats.average_order_value);
+
+// Access daily sales data for charts
+console.log('Sales Data:', analytics.sales_data);
+// Example: [{ date: "2024-12-07", revenue: 2100.50, orders: 18 }, ...]
+
+// Access top items
 console.log('Top Item:', analytics.topItems[0].name);
 
 // Get all-time analytics
@@ -239,7 +316,7 @@ const allTimeResponse = await fetch(
 );
 
 const allTimeAnalytics = await allTimeResponse.json();
-console.log('All-Time Revenue:', allTimeAnalytics.summary.revenue);
+console.log('All-Time Revenue:', allTimeAnalytics.stats.total_revenue);
 ```
 
 ### cURL

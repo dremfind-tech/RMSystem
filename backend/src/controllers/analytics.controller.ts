@@ -73,12 +73,38 @@ export const getAnalyticsDashboard = async (req: Request, res: Response) => {
         .sort((a, b) => b.count - a.count)
         .slice(0, 5); // Top 5
 
+    // 3. Generate daily sales data for time-series charts
+    const salesByDate = new Map<string, { revenue: number, orders: number }>();
+
+    orders?.forEach(order => {
+        // Extract date in YYYY-MM-DD format
+        const dateStr = order.created_at.split('T')[0];
+        const current = salesByDate.get(dateStr) || { revenue: 0, orders: 0 };
+        current.revenue += Number(order.total_amount) || 0;
+        current.orders += 1;
+        salesByDate.set(dateStr, current);
+    });
+
+    // Convert to array and sort by date
+    const salesData = Array.from(salesByDate.entries())
+        .map(([date, data]) => ({
+            date,
+            revenue: data.revenue,
+            orders: data.orders
+        }))
+        .sort((a, b) => a.date.localeCompare(b.date));
+
+    // 4. Calculate average order value
+    const averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+
     res.json({
         period: { from: startDate, to: endDate },
-        summary: {
-            revenue: totalRevenue,
-            orders: totalOrders, // Only SERVED orders
+        stats: {
+            total_revenue: totalRevenue,
+            total_orders: totalOrders,
+            average_order_value: averageOrderValue
         },
+        sales_data: salesData,
         topItems
     });
 };
