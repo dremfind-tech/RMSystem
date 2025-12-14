@@ -46,6 +46,7 @@ export const authenticateUser = async (req: Request, res: Response, next: NextFu
             // Fallback or explicit error? 
             // If no role assigned, maybe just authenticated user? 
             // Requirement implies specific roles.
+            console.error(`User ${decoded.sub} has no role assigned. DB Error: ${error?.message}`);
             return res.status(403).json({ error: 'User has no assigned role' });
         }
 
