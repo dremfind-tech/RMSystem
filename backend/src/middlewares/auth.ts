@@ -20,7 +20,7 @@ export const authenticateUser = async (req: Request, res: Response, next: NextFu
     }
 
     const token = authHeader.split(' ')[1];
-    const secret = process.env.JWT_SECRET || '';
+    const secret = process.env.JWT_SECRET || process.env.SUPABASE_JWT_SECRET || '';
 
     try {
         // 1. Verify JWT

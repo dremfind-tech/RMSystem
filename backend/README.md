@@ -12,16 +12,19 @@ A production-ready Node.js/Express system using Supabase (PostgreSQL) for a rest
 
 1. **Install Dependencies**
    ```bash
+   cd backend
    npm install
    ```
 
 2. **Environment Variables**
-   Create a `.env` file:
+   This project is compatible with Vercel's Supabase Integration.
+   
+   If running locally, create a `.env` file in `backend/`:
    ```env
    PORT=3000
-   SUPABASE_URL=your_supabase_url
+   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
    SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
-   JWT_SECRET=your_supabase_jwt_secret
+   SUPABASE_JWT_SECRET=your_supabase_jwt_secret
    ```
 
 3. **Database Setup**
@@ -31,6 +34,7 @@ A production-ready Node.js/Express system using Supabase (PostgreSQL) for a rest
 
 4. **Run Locally**
    ```bash
+   cd backend
    npm run dev
    ```
 
@@ -56,10 +60,10 @@ Authenticated via Supabase JWT in `Authorization: Bearer <token>` header.
 ### Invoices
 - `GET /api/invoices/:orderId`: Get invoice (Cashier).
 
-## Realtime
-This backend primarily serves REST APIs. Realtime updates (Order status changes) are handled by Supabase Realtime functionality. Clients should subscribe to the `orders` table updates directly via Supabase Client for instant notifications.
-
 ## Deployment on Vercel
-1. Install Vercel CLI: `npm i -g vercel`
-2. Run `vercel`.
-3. Set environment variables in Vercel project settings.
+1. Select the `backend` folder as the Root Directory in Vercel.
+2. Connect your Supabase project in the Vercel Integrations page.
+3. Ensure the following Environment Variables are present (Supabase integration adds most automatically):
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `SUPABASE_SERVICE_ROLE_KEY`
+   - `SUPABASE_JWT_SECRET` (or `JWT_SECRET`)
