@@ -55,13 +55,27 @@ export default function MenuItemsPage() {
     const [open, setOpen] = useState(false)
     const [editingItem, setEditingItem] = useState<MenuItem | null>(null)
     const [deleteId, setDeleteId] = useState<number | null>(null)
+    const [restaurantId, setRestaurantId] = useState<string | null>(null)
 
     const supabase = createClient()
 
     useEffect(() => {
         fetchItems()
         fetchCategories()
+        fetchRestaurantId()
     }, [])
+
+    const fetchRestaurantId = async () => {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (user) {
+            const { data } = await supabase
+                .from('users')
+                .select('restaurant_id')
+                .eq('id', user.id)
+                .single()
+            if (data) setRestaurantId(data.restaurant_id)
+        }
+    }
 
     const fetchItems = async () => {
         setLoading(true)
@@ -107,7 +121,16 @@ export default function MenuItemsPage() {
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
         try {
             // Handle placeholder upload if needed, here just taking string
-            const payload = { ...values, category_id: parseInt(values.category_id) }
+            const payload = {
+                ...values,
+                category_id: parseInt(values.category_id),
+                restaurant_id: restaurantId
+            }
+
+            if (!restaurantId) {
+                toast.error("Could not verify restaurant identity")
+                return
+            }
 
             if (editingItem) {
                 await apiClient(`/api/menu/item/${editingItem.id}`, {
