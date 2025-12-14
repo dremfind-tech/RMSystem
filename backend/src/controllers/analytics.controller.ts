@@ -3,10 +3,20 @@ import { supabaseAdmin } from '../utils/supabase';
 
 // 1. GET /api/analytics/dashboard
 export const getAnalyticsDashboard = async (req: Request, res: Response) => {
-    const { from, to } = req.query;
+    const { from, to, period } = req.query;
 
-    const startDate = from ? new Date(from as string).toISOString() : new Date(new Date().setDate(new Date().getDate() - 7)).toISOString();
-    const endDate = to ? new Date(to as string).toISOString() : new Date().toISOString();
+    let startDate: string;
+    let endDate: string = to ? new Date(to as string).toISOString() : new Date().toISOString();
+
+    // Support for 'all' period to get all-time analytics
+    if (period === 'all') {
+        startDate = '1970-01-01T00:00:00.000Z'; // Beginning of time (Unix epoch)
+    } else if (from) {
+        startDate = new Date(from as string).toISOString();
+    } else {
+        // Default to last 7 days
+        startDate = new Date(new Date().setDate(new Date().getDate() - 7)).toISOString();
+    }
 
     // 1. Total Revenue (Sum of COMPLETED/SERVED orders)
     // Note: Supabase JS library doesn't support .sum() directly on query builder easily without RPC, 
