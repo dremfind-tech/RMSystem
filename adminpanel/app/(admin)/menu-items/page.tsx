@@ -6,7 +6,7 @@ import { apiClient } from "@/lib/apiClient"
 import { DataTable } from "@/components/DataTable"
 import { Button } from "@/components/ui/button"
 import { Plus, Pencil, Trash, Image as ImageIcon } from "lucide-react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogDescription } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
 import { z } from "zod"
@@ -184,6 +184,9 @@ export default function MenuItemsPage() {
                     <DialogContent className="max-w-lg">
                         <DialogHeader>
                             <DialogTitle>{editingItem ? "Edit Item" : "New Item"}</DialogTitle>
+                            <DialogDescription>
+                                {editingItem ? "Update the details of this menu item." : "Create a new dish for your menu."}
+                            </DialogDescription>
                         </DialogHeader>
                         <Form {...form}>
                             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">

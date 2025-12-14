@@ -6,7 +6,7 @@ import { apiClient } from "@/lib/apiClient"
 import { DataTable } from "@/components/DataTable"
 import { Button } from "@/components/ui/button"
 import { Plus, Pencil, Trash } from "lucide-react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogDescription } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
 import { z } from "zod"
@@ -141,6 +141,9 @@ export default function CategoriesPage() {
                     <DialogContent>
                         <DialogHeader>
                             <DialogTitle>{editingCategory ? "Edit Category" : "New Category"}</DialogTitle>
+                            <DialogDescription>
+                                {editingCategory ? "Make changes to the category details here." : "Add a new category to your menu."}
+                            </DialogDescription>
                         </DialogHeader>
                         <Form {...form}>
                             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
